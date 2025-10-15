@@ -1,6 +1,231 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, RotateCcw } from 'lucide-react';
 
+const styles = `
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  }
+
+  .app-container {
+    min-height: 100vh;
+    background-color: #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .menu-container {
+    width: 100%;
+    max-width: 672px;
+  }
+
+  .title {
+    font-size: 2.25rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .quiz-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .quiz-button {
+    width: 100%;
+    background-color: white;
+    color: black;
+    padding: 16px 24px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 1.125rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .quiz-button:hover {
+    background-color: #f3f4f6;
+  }
+
+  .quiz-container {
+    min-height: 100vh;
+    background-color: #000000;
+    color: white;
+    padding: 16px;
+  }
+
+  .quiz-content {
+    max-width: 768px;
+    margin: 0 auto;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .back-button {
+    background-color: white;
+    color: black;
+    padding: 8px 24px;
+    border-radius: 9999px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+  }
+
+  .back-button:hover {
+    background-color: #f3f4f6;
+  }
+
+  .score {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .question-card {
+    background-color: #111827;
+    border-radius: 24px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .question-info {
+    color: #9ca3af;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background-color: #374151;
+    border-radius: 9999px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: white;
+    border-radius: 9999px;
+    transition: width 0.3s;
+  }
+
+  .question-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.75;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option-button {
+    width: 100%;
+    padding: 16px 24px;
+    border-radius: 16px;
+    font-weight: 500;
+    text-align: left;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: black;
+  }
+
+  .option-default {
+    background-color: white;
+  }
+
+  .option-default:not(:disabled):hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.02);
+  }
+
+  .option-correct {
+    background-color: rgba(74, 222, 128, 0.6);
+  }
+
+  .option-incorrect {
+    background-color: rgba(248, 113, 113, 0.6);
+  }
+
+  .option-faded {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .option-button:disabled {
+    cursor: default;
+  }
+
+  .navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: black;
+    padding: 12px 24px;
+    border-radius: 9999px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .nav-button:not(:disabled):hover {
+    background-color: #f3f4f6;
+  }
+
+  .nav-button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .completion {
+    text-align: center;
+  }
+
+  .completion-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .completion-score {
+    font-size: 1.125rem;
+  }
+`;
+
 const quizData = [
     {
         id: 1,
@@ -385,24 +610,27 @@ export default function QuizApp() {
 
     if (!selectedQuiz) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center p-4">
-                <div className="w-full max-w-2xl">
-                    <h1 className="text-4xl font-bold text-white text-center mb-8">
-                        Ecology Quiz
-                    </h1>
-                    <div className="space-y-4">
-                        {[1, 2, 3, 4, 5].map(num => (
-                            <button
-                                key={num}
-                                onClick={() => handleQuizSelect(num)}
-                                className="w-full bg-white text-black py-4 px-6 rounded-2xl font-semibold text-lg hover:bg-gray-100 transition-colors"
-                            >
-                                Quiz {num} (Questions {(num - 1) * 10 + 1}-{num * 10})
-                            </button>
-                        ))}
+            <>
+                <style>{styles}</style>
+                <div className="app-container">
+                    <div className="menu-container">
+                        <h1 className="title">
+                            Ecology Quiz
+                        </h1>
+                        <div className="quiz-buttons">
+                            {[1, 2, 3, 4, 5].map(num => (
+                                <button
+                                    key={num}
+                                    onClick={() => handleQuizSelect(num)}
+                                    className="quiz-button"
+                                >
+                                    Quiz {num} (Questions {(num - 1) * 10 + 1}-{num * 10})
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
+            </>
         );
     }
 
@@ -412,104 +640,100 @@ export default function QuizApp() {
     const allAnswered = questions.every(q => answers[q.id] !== undefined);
 
     return (
-        <div className="min-h-screen bg-black text-white p-4">
-            <div className="max-w-3xl mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <button
-                        onClick={handleReset}
-                        className="bg-white text-black px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition-colors flex items-center gap-2"
-                    >
-                        <RotateCcw size={18} />
-                        Back to Menu
-                    </button>
-                    <div className="text-xl font-semibold">
-                        Score: {score}/{questions.length}
-                    </div>
-                </div>
-
-                <div className="bg-gray-900 rounded-3xl p-6 mb-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-gray-400">Question {currentQuestion + 1} of {questions.length}</span>
-                        <span className="text-gray-400">Quiz {selectedQuiz}</span>
-                    </div>
-
-                    <div className="h-1 bg-gray-700 rounded-full mb-6">
-                        <div
-                            className="h-full bg-white rounded-full transition-all duration-300"
-                            style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-                        />
-                    </div>
-
-                    <h2 className="text-2xl font-semibold mb-6 leading-relaxed">
-                        {currentQ.question}
-                    </h2>
-
-                    <div className="space-y-3">
-                        {currentQ.options.map((option, idx) => {
-                            let bgColor = 'bg-white';
-
-                            if (isAnswered) {
-                                if (idx === currentQ.correct) {
-                                    bgColor = 'bg-green-400 bg-opacity-60';
-                                } else if (idx === answers[currentQ.id] && idx !== currentQ.correct) {
-                                    bgColor = 'bg-red-400 bg-opacity-60';
-                                } else {
-                                    bgColor = 'bg-white bg-opacity-50';
-                                }
-                            }
-
-                            return (
-                                <button
-                                    key={idx}
-                                    onClick={() => handleAnswerClick(currentQ.id, idx)}
-                                    disabled={isAnswered}
-                                    className={`w-full ${bgColor} text-black py-4 px-6 rounded-2xl font-medium text-left hover:bg-opacity-80 transition-all ${isAnswered ? 'cursor-default' : 'hover:scale-[1.02]'
-                                        }`}
-                                >
-                                    {option}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-
-                <div className="flex justify-between items-center">
-                    <button
-                        onClick={handlePrev}
-                        disabled={currentQuestion === 0}
-                        className={`flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-semibold transition-all ${currentQuestion === 0
-                                ? 'opacity-30 cursor-not-allowed'
-                                : 'hover:bg-gray-100'
-                            }`}
-                    >
-                        <ChevronLeft size={20} />
-                        Previous
-                    </button>
-
-                    {allAnswered && currentQuestion === questions.length - 1 ? (
-                        <div className="text-center">
-                            <div className="text-2xl font-bold mb-2">
-                                Quiz Complete!
-                            </div>
-                            <div className="text-lg">
-                                Final Score: {score}/{questions.length} ({Math.round((score / questions.length) * 100)}%)
-                            </div>
-                        </div>
-                    ) : (
+        <>
+            <style>{styles}</style>
+            <div className="quiz-container">
+                <div className="quiz-content">
+                    <div className="header">
                         <button
-                            onClick={handleNext}
-                            disabled={currentQuestion === questions.length - 1}
-                            className={`flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full font-semibold transition-all ${currentQuestion === questions.length - 1
-                                    ? 'opacity-30 cursor-not-allowed'
-                                    : 'hover:bg-gray-100'
-                                }`}
+                            onClick={handleReset}
+                            className="back-button"
                         >
-                            Next
-                            <ChevronRight size={20} />
+                            <RotateCcw size={18} />
+                            Back to Menu
                         </button>
-                    )}
+                        <div className="score">
+                            Score: {score}/{questions.length}
+                        </div>
+                    </div>
+
+                    <div className="question-card">
+                        <div className="question-header">
+                            <span className="question-info">Question {currentQuestion + 1} of {questions.length}</span>
+                            <span className="question-info">Quiz {selectedQuiz}</span>
+                        </div>
+
+                        <div className="progress-bar">
+                            <div
+                                className="progress-fill"
+                                style={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
+                            />
+                        </div>
+
+                        <h2 className="question-text">
+                            {currentQ.question}
+                        </h2>
+
+                        <div className="options">
+                            {currentQ.options.map((option, idx) => {
+                                let className = 'option-button option-default';
+
+                                if (isAnswered) {
+                                    if (idx === currentQ.correct) {
+                                        className = 'option-button option-correct';
+                                    } else if (idx === answers[currentQ.id] && idx !== currentQ.correct) {
+                                        className = 'option-button option-incorrect';
+                                    } else {
+                                        className = 'option-button option-faded';
+                                    }
+                                }
+
+                                return (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleAnswerClick(currentQ.id, idx)}
+                                        disabled={isAnswered}
+                                        className={className}
+                                    >
+                                        {option}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="navigation">
+                        <button
+                            onClick={handlePrev}
+                            disabled={currentQuestion === 0}
+                            className="nav-button"
+                        >
+                            <ChevronLeft size={20} />
+                            Previous
+                        </button>
+
+                        {allAnswered && currentQuestion === questions.length - 1 ? (
+                            <div className="completion">
+                                <div className="completion-title">
+                                    Quiz Complete!
+                                </div>
+                                <div className="completion-score">
+                                    Final Score: {score}/{questions.length} ({Math.round((score / questions.length) * 100)}%)
+                                </div>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleNext}
+                                disabled={currentQuestion === questions.length - 1}
+                                className="nav-button"
+                            >
+                                Next
+                                <ChevronRight size={20} />
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
-};
+}
